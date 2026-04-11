@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n          for (const bet of session.currentBets) {\n            const payout = calculateWin(bet, resultNumber);\n            if (payout > 0 && newUser) {\n              newUser.balance += payout;\n              totalWin += payout;\n            }\n            newMyBets.push({\n              ...bet,\n              result: resultNumber,\n              won: payout > 0,\n..."
-}

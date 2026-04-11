@@ -1,3 +1,0 @@
-{
-  "output": "Successfully overwrote file: /storage/emulated/0/Download/big-win/src/main.tsx. Here is the updated code:\nimport { createRoot } from \"react-dom/client\";\nimport \"./index.css\";\nimport App from \"./App\";\n\ncreateRoot(document.getElementById(\"root\")!).render(\n  // <StrictMode>\n    <App />\n  // </StrictMode>\n);\n"
-}

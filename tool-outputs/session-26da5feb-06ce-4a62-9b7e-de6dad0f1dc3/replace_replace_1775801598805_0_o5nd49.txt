@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n          };\n        });\n\n      } catch (err) {\n        console.error('Error resolving round for session:', st, err);\n        // Ensure we don't get stuck in a resolving state\n        set(curr => ({\n          sessions: {\n            ...curr.sessions,\n            [st]: {\n              ...curr.sessions[st],\n              isResolving: false,\n            }\n          }\n        }));\n      }\n    }\n  },\n}));\n\n..."
-}

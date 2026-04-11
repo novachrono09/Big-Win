@@ -1,3 +1,0 @@
-{
-  "output": "Directory listing for /storage/emulated/0/Download/big-win:\n[DIR] src\nGEMINI.md (2916 bytes)\nindex.html (328 bytes)\npackage-lock.json (86832 bytes)\npackage.json (688 bytes)\ntsconfig.json (681 bytes)\nvite.config.ts (538 bytes)"
-}

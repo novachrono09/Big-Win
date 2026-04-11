@@ -1,3 +1,0 @@
-{
-  "output": "Successfully created and wrote to new file: /data/data/com.termux/files/home/.gemini/tmp/big-win/withdrawal-setup-storage.sql. Here is the updated code:\n-- Append Storage Bucket setup for QR Codes\ninsert into storage.buckets (id, name, public) \nvalues ('qrcodes', 'qrcodes', true) \non conflict (id) do nothing;\n\ndrop policy if exists \"Allow public viewing\" on storage.objects;\ncreate policy \"Allow public viewing\" on storage.objects for select using ( bucket_id = 'qrcodes' );\n\ndrop policy if exists \"Allow authenticated uploads\" on storage.objects;\ncreate policy \"Allow authenticated uploads\" on storage.objects for insert with check ( bucket_id = 'qrcodes' AND auth.role() = 'authenticated' );\n"
-}

@@ -1,3 +1,0 @@
-{
-  "output": "Output: History: true Activity: true Settings: true\nProcess Group PGID: 6396"
-}

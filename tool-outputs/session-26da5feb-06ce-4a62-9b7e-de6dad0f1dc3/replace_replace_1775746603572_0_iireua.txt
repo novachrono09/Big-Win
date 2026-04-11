@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n\nexport interface User {\n  id: string;\n  username: string;\n  balance: number;\n  is_admin?: boolean;\n}\n\n// ─── Pure Game Logic ──────────────────────────────────────────────────────────\n\nexport function getColorForNumber(num: number): ColorValue | 'red-violet' | 'green-violet' {\n..."
-}

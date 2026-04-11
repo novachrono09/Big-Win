@@ -1,3 +1,0 @@
-{
-  "output": "Output: node_modules NOT yet here\nProcess Group PGID: 21157"
-}

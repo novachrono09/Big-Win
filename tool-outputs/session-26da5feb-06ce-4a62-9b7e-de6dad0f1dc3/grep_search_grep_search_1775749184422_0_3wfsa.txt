@@ -1,3 +1,0 @@
-{
-  "output": "Found 5 matches for pattern \"Settings\" in path \"/data/data/com.termux/files/home/.gemini/tmp/big-win/src\":\n---\nFile: App.tsx\nL94:         { label: 'Settings', icon: '⚙️' },\n---\nFile: pages/Admin.tsx\nL6:   LayoutDashboard, Users, Activity, History, CreditCard, Settings, LogOut, CheckCircle, XCircle\nL207:             { id: 'settings', icon: Settings, label: 'Settings' },\nL442:               {/* Settings placeholder */}\nL446:                     <Settings className=\"w-12 h-12 text-gray-300 animate-[spin_10s_linear_infinite]\" />\n---"
-}

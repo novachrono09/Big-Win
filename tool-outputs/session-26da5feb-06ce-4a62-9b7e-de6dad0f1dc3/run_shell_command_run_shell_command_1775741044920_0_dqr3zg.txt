@@ -1,3 +1,0 @@
-{
-  "output": "Output: \nadded 1 package, and audited 108 packages in 4s\n\n15 packages are looking for funding\n  run `npm fund` for details\n\n1 high severity vulnerability\n\nTo address all issues, run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n\nadded 1 package, and audited 109 packages in 2s\n\n15 packages are looking for funding\n  run `npm fund` for details\n\n1 high severity vulnerability\n\nTo address all issues, run:\n  npm audit fix --force\n\nRun `npm audit` for details.\nProcess Group PGID: 14186"
-}

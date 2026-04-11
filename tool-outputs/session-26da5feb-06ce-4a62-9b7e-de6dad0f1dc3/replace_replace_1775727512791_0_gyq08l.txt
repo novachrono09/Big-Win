@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/authStore.ts (1 replacements). Here is the updated code:\n...\n  },\n\n  signOut: async () => {\n    try {\n      await supabase.auth.signOut();\n      // Explicitly clear any remaining auth-related items from storage\n      for (const key in localStorage) {\n        if (key.includes('supabase.auth')) localStorage.removeItem(key);\n      }\n    } catch (error) {\n      console.error('Error signing out:', error);\n    } finally {\n      set({ user: null, profile: null });\n      useGameStore.getState().syncUser(null);\n..."
-}

@@ -1,3 +1,0 @@
-{
-  "output": "Output: .   .env           GEMINI.md  dev.log     logs.json     package-lock.json  src            vite.config.ts\n..  .project_root  chats      index.html  node_modules  package.json       tsconfig.json\nProcess Group PGID: 16197"
-}

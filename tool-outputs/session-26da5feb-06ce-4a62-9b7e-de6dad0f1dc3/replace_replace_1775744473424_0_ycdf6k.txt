@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n              payout,\n            });\n          }\n\n          if (totalWin > 0 && newUser) {\n            // Process payout via Secure RPC Function\n            supabase.rpc('update_user_balance', {\n              p_user_id: newUser.id,\n              p_amount: totalWin,\n              p_reason: 'win',\n              p_details: { period: session.period, session: st }\n            }).then(({ error }) => {\n              if (error) console.error('Failed to process win payout:', error);\n            });\n          }\n\n..."
-}

@@ -1,3 +1,0 @@
-{
-  "output": "Successfully created and wrote to new file: /data/data/com.termux/files/home/.gemini/tmp/big-win/check-db.js. Here is the updated code:\nimport { createClient } from '@supabase/supabase-js';\nimport dotenv from 'dotenv';\nimport { resolve } from 'path';\n\ndotenv.config({ path: resolve(process.cwd(), '.env') });\n\nconst supabaseUrl = process.env.VITE_SUPABASE_URL;\nconst supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;\n\nconst supabase = createClient(supabaseUrl, supabaseKey);\n\nasync function check() {\n  console.log('Checking profiles...');\n  const { data, error } = await supabase.from('profiles').select('*');\n  if (error) console.error('Error:', error);\n  else console.log('Profiles:', data);\n}\n\ncheck();\n"
-}

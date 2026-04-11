@@ -1,3 +1,0 @@
-{
-  "output": "Output: LineChart: true Line: true XAxis: true YAxis: true CartesianGrid: true Tooltip: true ResponsiveContainer: true\nProcess Group PGID: 7153"
-}

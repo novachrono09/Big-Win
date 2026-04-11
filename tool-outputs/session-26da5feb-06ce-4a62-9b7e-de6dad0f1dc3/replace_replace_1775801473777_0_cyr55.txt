@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n      const session = { ...updatedSessions[st] };\n      session.timeLeft -= 1;\n      \n      if (session.timeLeft <= 5) session.isAcceptingBets = false;\n      \n      if (session.timeLeft <= 0 && !session.isResolving) {\n        sessionsToResolve.push(st);\n        session.isResolving = true;\n      }\n      updatedSessions[st] = session;\n    }\n\n    set({ sessions: updatedSessions });\n..."
-}

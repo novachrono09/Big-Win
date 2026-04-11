@@ -1,3 +1,0 @@
-{
-  "output": "Output: ls: cannot access '/data/data/com.termux/files/home/.gemini/tmp/big-win/src/components/ReferralTab.tsx': No such file or directory\n/storage/emulated/0/Download/big-win/src/components/ReferralTab.tsx\nExit Code: 2\nProcess Group PGID: 23750"
-}

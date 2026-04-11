@@ -1,3 +1,0 @@
-{
-  "output": "No matches found for pattern \"lucide-react\" in path \"/data/data/com.termux/files/home/.gemini/tmp/big-win/src/components\"."
-}

@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n\n  selectedBet: { type: BetType; value: ColorValue | SizeValue | number } | null;\n  selectedMultiplier: number;\n  setSelectedBet: (bet: { type: BetType; value: ColorValue | SizeValue | number } | null) => void;\n  setSelectedMultiplier: (m: number) => void;\n  isPlacingBet: boolean;\n  placeBet: (amount: number) => Promise<void>;\n  randomBet: () => void;\n\n  historyTab: 'game' | 'chart' | 'my';\n  setHistoryTab: (t: 'game' | 'chart' | 'my') => void;\n..."
-}

@@ -1,3 +1,0 @@
-{
-  "error": "Path not in workspace: Attempted path \"/data/data/com.termux/files/home/big-win\" resolves outside the allowed workspace directories: /storage/emulated/0/Download/big-win or the project temp directory: /data/data/com.termux/files/home/.gemini/tmp/big-win"
-}

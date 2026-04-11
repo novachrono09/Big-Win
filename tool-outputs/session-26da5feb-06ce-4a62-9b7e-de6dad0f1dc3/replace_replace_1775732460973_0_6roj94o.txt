@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/authStore.ts (1 replacements). Here is the updated code:\n...\n        useGameStore.getState().syncUser({\n          id: data.id,\n          username: data.username,\n          balance: data.balance\n        });\n      } else {\n        // DB row might be missing, use metadata\n        const fallback = {\n          id: user.id,\n          username: user.user_metadata?.username || user.email?.split('@')[0] || 'User',\n          balance: 10000.00\n        };\n        set({ profile: fallback });\n        useGameStore.getState().syncUser(fallback);\n      }\n    } catch (err) {\n      console.error('Error refreshing profile:', err);\n    }\n  },\n..."
-}

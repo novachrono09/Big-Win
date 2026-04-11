@@ -1,3 +1,0 @@
-{
-  "output": "Found 4 matches for pattern \"refreshProfile\" in path \"/data/data/com.termux/files/home/.gemini/tmp/big-win/src/store\":\n---\nFile: authStore.ts\nL11:   refreshProfile: () => Promise<void>;\nL24:   refreshProfile: async () => {\nL120:         await get().refreshProfile();\nL147:     await store.refreshProfile();\n---"
-}

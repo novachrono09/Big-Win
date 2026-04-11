@@ -1,3 +1,0 @@
-{
-  "output": "Command was automatically cancelled because it exceeded the timeout of 5.0 minutes without output. Below is the output before it was cancelled:\n\n> react-vite-tailwind@0.0.0 dev\n> vite --host\n\n\n  VITE v7.2.4  ready in 694 ms\n\n  ➜  Local:   http://localhost:5173/\n  ➜  Network: http://10.38.211.195:5173/\n  ➜  press h + enter to show help"
-}

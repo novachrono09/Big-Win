@@ -1,3 +1,0 @@
-{
-  "output": "VITE_SUPABASE_URL=https://osdfbqrmakawcfvrdynu.supabase.co\nVITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zZGZicXJtYWthd2NmdnJkeW51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTQyNzAsImV4cCI6MjA5MTI5MDI3MH0.wh6Mc_RqfB5FfoiboFRUe1MZPujSUd3vpR8wQAqx-Y4\n"
-}

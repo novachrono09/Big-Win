@@ -1,3 +1,0 @@
-{
-  "output": "Output: ls: cannot access 'node_modules/@tanstack': No such file or directory\nExit Code: 2\nProcess Group PGID: 29807"
-}

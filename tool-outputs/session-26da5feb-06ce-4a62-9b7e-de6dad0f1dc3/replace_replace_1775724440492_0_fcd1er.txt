@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n  message: string;\n}\n\ninterface GameStore {\n  user: User | null;\n  syncUser: (user: User | null) => void;\n  syncUserBalance: (balance: number) => void;\n\n  activeSession: SessionType;\n  setActiveSession: (s: SessionType) => void;\n\n..."
-}

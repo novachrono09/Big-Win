@@ -1,3 +1,0 @@
-{
-  "output": "Output: AI-Horde-Worker  calculator.html  my-god-bot               storage     wget-log.1\nNC_Organizer.sh  downloads        regex-gen-cerebras.py    wa-scraper\nbuild            llama.cpp        regex_dataset_raw.jsonl  wget-log\nProcess Group PGID: 21313"
-}

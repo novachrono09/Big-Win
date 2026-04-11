@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/App.tsx (1 replacements). Here is the updated code:\n...\n\n  useEffect(() => {\n    // Single consolidated initialization\n    initialize();\n    startGameTick();\n    // Fetch real game history from Supabase\n    useGameStore.getState().fetchInitialHistory();\n  }, [initialize]);\n\n  if (loading) {\n    return (\n      <div className=\"min-h-screen bg-gray-950 flex flex-col items-center justify-center\">\n..."
-}

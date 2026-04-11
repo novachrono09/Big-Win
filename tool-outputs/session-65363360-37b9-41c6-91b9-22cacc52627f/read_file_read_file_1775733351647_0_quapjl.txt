@@ -1,3 +1,0 @@
-{
-  "output": "import { createClient } from '@supabase/supabase-js';\n\nconst supabaseUrl = import.meta.env.VITE_SUPABASE_URL;\nconst supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;\n\nconsole.log('Supabase: Initializing with URL:', supabaseUrl);\n// Don't log the full key, but log its length/presence\nconsole.log('Supabase: Key length:', supabaseAnonKey?.length || 0);\n\nif (!supabaseUrl || !supabaseAnonKey) {\n  console.warn('Supabase: credentials missing! Check your .env file.');\n}\n\nexport const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');\n"
-}

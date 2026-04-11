@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/pages/Admin.tsx (1 replacements). Here is the updated code:\n...\n        <nav className=\"flex-1 py-6 px-4 space-y-2\">\n          {[\n            { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },\n            { id: 'monitor', icon: Activity, label: 'Games Monitor' },\n            { id: 'users', icon: Users, label: 'User Control' },\n            { id: 'deposits', icon: Wallet, label: 'Pending Deposits' },\n            { id: 'transactions', icon: CreditCard, label: 'Financials' },\n            { id: 'settings', icon: Settings, label: 'Settings' },\n          ].map((item) => (\n            <button\n              key={item.id}\n..."
-}

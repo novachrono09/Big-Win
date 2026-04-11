@@ -1,3 +1,0 @@
-{
-  "output": "Output: ls: cannot access '/data/data/com.termux/files/home/big-win': No such file or directory\nProcess Group PGID: 21298"
-}

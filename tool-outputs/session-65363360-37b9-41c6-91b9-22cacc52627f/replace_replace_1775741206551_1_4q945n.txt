@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/App.tsx (1 replacements). Here is the updated code:\n...\nexport default function App() {\n  const { user, loading, initialize, profile, signOut } = useAuthStore();\n  const [activeTab, setActiveTab] = useState<TabType>('wingo');\n  const [showWallet, setShowWallet] = useState(false);\n\n  useRealtimeBalance();\n\n  useEffect(() => {\n    // Single consolidated initialization\n    initialize();\n    startGameTick();\n  }, [initialize]);\n..."
-}

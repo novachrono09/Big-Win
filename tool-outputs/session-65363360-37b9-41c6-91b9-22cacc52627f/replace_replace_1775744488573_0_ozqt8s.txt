@@ -1,3 +1,0 @@
-{
-  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/components/WalletModal.tsx (1 replacements). Here is the updated code:\n...\n      return;\n    }\n\n    setLoading(true);\n    try {\n      // Call the Secure RPC Function instead of the Edge Function\n      const { data, error } = await supabase.rpc('update_user_balance', {\n        p_user_id: profile.id,\n        p_amount: type === 'deposit' ? amount : -amount,\n        p_reason: type,\n        p_details: { method: paymentMethod, simulated: true }\n      });\n\n      if (error) {\n        throw new Error(error.message || 'Transaction failed');\n      }\n..."
-}
