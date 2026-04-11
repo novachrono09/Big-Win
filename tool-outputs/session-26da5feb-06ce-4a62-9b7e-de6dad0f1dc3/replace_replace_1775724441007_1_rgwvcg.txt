@@ -1,0 +1,3 @@
+{
+  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n  '30s': 100, '1min': 100, '3min': 100, '5min': 100, '10min': 100,\n};\n\nexport const useGameStore = create<GameStore>((set, get) => ({\n  user: null,\n  syncUser: (user) => set({ user }),\n  syncUserBalance: (balance) => {\n    set(s => ({ user: s.user ? { ...s.user, balance } : null }));\n  },\n\n  activeSession: '1min',\n..."
+}

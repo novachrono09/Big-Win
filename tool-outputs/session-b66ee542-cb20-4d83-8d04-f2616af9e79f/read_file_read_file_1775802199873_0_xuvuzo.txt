@@ -1,0 +1,3 @@
+{
+  "error": "File not found: /storage/emulated/0/Download/big-win/src/store/authStore.ts"
+}

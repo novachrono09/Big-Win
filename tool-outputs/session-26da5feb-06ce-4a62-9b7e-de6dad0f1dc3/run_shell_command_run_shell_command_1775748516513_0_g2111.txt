@@ -1,0 +1,3 @@
+{
+  "output": "Output: \n> react-vite-tailwind@0.0.0 build\n> vite build\n\nvite v7.2.4 building client environment for production...\nProcess Group PGID: 3713"
+}

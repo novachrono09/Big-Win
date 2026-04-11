@@ -1,0 +1,3 @@
+{
+  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/components/WalletModal.tsx (1 replacements). Here is the updated code:\n...\n      .order('created_at', { ascending: false })\n      .limit(20);\n    if (data) setTransactions(data);\n  };\n\n  const handleTransaction = async (tabValue: 'deposit' | 'withdraw') => {\n    if (!profile?.id) return;\n    \n    const type = tabValue === 'withdraw' ? 'withdrawal' : 'deposit';\n    \n    if (type === 'withdrawal' && amount > (profile?.balance || 0)) {\n      addToast('error', 'Insufficient balance');\n      return;\n    }\n    \n..."
+}

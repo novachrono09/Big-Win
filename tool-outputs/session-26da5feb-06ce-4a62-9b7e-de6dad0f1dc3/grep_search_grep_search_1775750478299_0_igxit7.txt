@@ -1,0 +1,3 @@
+{
+  "output": "No matches found for pattern \"CheckCircle\" in path \"/data/data/com.termux/files/home/.gemini/tmp/big-win/src/components\"."
+}

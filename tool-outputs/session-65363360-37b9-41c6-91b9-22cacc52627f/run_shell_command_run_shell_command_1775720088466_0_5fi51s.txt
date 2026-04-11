@@ -1,0 +1,3 @@
+{
+  "output": "Output: v25.8.2\n11.12.0\nProcess Group PGID: 20823"
+}

@@ -1,0 +1,4 @@
+{
+  "output": "Command was cancelled by user before it could complete. Below is the output before it was cancelled:\n\n> react-vite-tailwind@0.0.0 dev\n> vite --host\n\n\n  VITE v7.2.4  ready in 721 ms\n\n  ➜  Local:   http://localhost:5173/\n  ➜  Network: http://10.38.211.195:5173/\n  ➜  press h + enter to show help",
+  "error": "[Operation Cancelled] User cancelled tool execution."
+}

@@ -1,0 +1,3 @@
+{
+  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/authStore.ts (1 replacements). Here is the updated code:\n...\n        // Wrap game store sync in try/catch so it doesn't crash the auth thread\n        try {\n          useGameStore.getState().syncUser({\n            id: data.id,\n            username: data.username,\n            balance: data.balance,\n            is_admin: data.is_admin\n          });\n        } catch (syncErr) {\n          console.error('Production Error - GameStore Sync crashed:', syncErr);\n        }\n      }\n..."
+}

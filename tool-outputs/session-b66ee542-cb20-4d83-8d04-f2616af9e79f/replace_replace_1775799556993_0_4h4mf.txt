@@ -1,0 +1,3 @@
+{
+  "output": "Successfully modified file: /data/data/com.termux/files/home/.gemini/tmp/big-win/src/store/gameStore.ts (1 replacements). Here is the updated code:\n...\n\n  toasts: ToastMessage[];\n  addToast: (type: ToastMessage['type'], message: string) => void;\n  removeToast: (id: string) => void;\n\n  tick: () => Promise<void>;\n}\n\nfunction makeInitialSession(sessionType: SessionType, counter: number): SessionState {\n  const { durationSeconds } = SESSION_CONFIGS[sessionType];\n  const nowInSeconds = Math.floor(Date.now() / 1000);\n..."
+}
