@@ -159,14 +159,18 @@ export default function AccountDashboard({ onOpenWallet, onOpenReferral }: Accou
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-2 relative z-10">
-          <div className="bg-black/10 rounded-2xl p-3 border border-white/5 backdrop-blur-sm text-center">
-             <p className="text-[8px] font-black text-red-200 uppercase tracking-widest mb-0.5 opacity-60">Deposited (Locked)</p>
-             <p className="text-white text-sm font-black">₹{Number(profile?.deposited || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+        <div className="grid grid-cols-3 gap-2 relative z-10">
+          <div className="bg-black/10 rounded-2xl p-2.5 border border-white/5 backdrop-blur-sm text-center">
+             <p className="text-[7px] font-black text-red-200 uppercase tracking-widest mb-0.5 opacity-60">Deposits</p>
+             <p className="text-white text-[11px] font-black">₹{Number(profile?.deposit_balance || profile?.deposited || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
           </div>
-          <div className="bg-green-500/20 rounded-2xl p-3 border border-green-500/20 backdrop-blur-sm text-center">
-             <p className="text-[8px] font-black text-green-200 uppercase tracking-widest mb-0.5 opacity-60">Winnings (Withdraw)</p>
-             <p className="text-green-400 text-sm font-black">₹{Number(profile?.winnings || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          <div className="bg-yellow-500/20 rounded-2xl p-2.5 border border-yellow-500/20 backdrop-blur-sm text-center">
+             <p className="text-[7px] font-black text-yellow-200 uppercase tracking-widest mb-0.5 opacity-60">Bonuses</p>
+             <p className="text-yellow-400 text-[11px] font-black">₹{Number(profile?.bonus_balance || profile?.joining_bonus || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="bg-green-500/20 rounded-2xl p-2.5 border border-green-500/20 backdrop-blur-sm text-center">
+             <p className="text-[7px] font-black text-green-200 uppercase tracking-widest mb-0.5 opacity-60">Winnings</p>
+             <p className="text-green-400 text-[11px] font-black">₹{Number(profile?.winnings_balance || profile?.winnings || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
       </motion.div>

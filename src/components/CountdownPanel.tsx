@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useGameStore, SESSION_CONFIGS } from '../store/gameStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, Zap } from 'lucide-react';
+import { HelpCircle, Zap, ShieldCheck } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 /** Optimized Digit Box - Using hardware-accelerated CSS transitions for smoothness */
 function DigitBox({ char }: { char: string }) {
@@ -44,6 +46,13 @@ export default function CountdownPanel() {
   const session = sessions[activeSession];
   const cfg = SESSION_CONFIGS[activeSession];
   const totalDuration = cfg.durationSeconds;
+  const [isLowTrafficActive, setIsLowTrafficActive] = useState(false);
+
+  useEffect(() => {
+    supabase.from('app_settings').select('low_traffic_mode').eq('id', 1).single().then(({data}) => {
+      if (data) setIsLowTrafficActive(data.low_traffic_mode);
+    });
+  }, []);
 
   const { mm, ss } = formatTime(session.timeLeft);
   const recentHistory = session.history.slice(0, 5);
@@ -72,7 +81,14 @@ export default function CountdownPanel() {
                 <HelpCircle size={10} />
                 Rules
               </button>
-              <div className="text-white/60 text-[9px] font-black uppercase tracking-widest italic">Live Countdown</div>
+              {isLowTrafficActive ? (
+                <div className="flex items-center gap-1 text-green-300 text-[8px] font-black uppercase tracking-widest bg-green-500/20 px-2 py-1 rounded-md border border-green-500/30">
+                  <ShieldCheck size={10} />
+                  Low Traffic Mode • Good luck!
+                </div>
+              ) : (
+                <div className="text-white/60 text-[9px] font-black uppercase tracking-widest italic">Live Countdown</div>
+              )}
             </div>
 
             <div className="flex items-center justify-between gap-4">

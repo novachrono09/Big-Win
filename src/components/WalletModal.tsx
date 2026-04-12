@@ -61,7 +61,7 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
 
   const handleWithdrawal = async () => {
     if (!profile?.id) return;
-    if (amount > (profile?.winnings || 0)) {
+    if (amount > (profile?.winnings_balance || profile?.winnings || 0)) {
       addToast('error', 'Amount exceeds withdrawable winnings');
       return;
     }
@@ -141,14 +141,18 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
           
-          <div className="grid grid-cols-2 gap-2 mt-1">
+          <div className="grid grid-cols-3 gap-2 mt-1">
             <div className="bg-black/20 p-2.5 rounded-xl border border-white/10 text-center shadow-inner">
-              <p className="text-[9px] font-black text-red-200 uppercase tracking-widest mb-0.5">Deposited (Locked)</p>
-              <p className="text-white text-sm font-black">₹{Number(profile?.deposited || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+              <p className="text-[8px] font-black text-red-200 uppercase tracking-widest mb-0.5">Deposits</p>
+              <p className="text-white text-sm font-black">₹{Number(profile?.deposit_balance || profile?.deposited || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            </div>
+            <div className="bg-yellow-500/20 p-2.5 rounded-xl border border-yellow-500/30 text-center shadow-inner">
+              <p className="text-[8px] font-black text-yellow-200 uppercase tracking-widest mb-0.5">Bonuses</p>
+              <p className="text-yellow-400 text-sm font-black">₹{Number(profile?.bonus_balance || profile?.joining_bonus || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
             </div>
             <div className="bg-green-500/20 p-2.5 rounded-xl border border-green-500/30 text-center shadow-inner">
-              <p className="text-[9px] font-black text-green-200 uppercase tracking-widest mb-0.5">Winnings (Withdraw)</p>
-              <p className="text-green-400 text-sm font-black">₹{Number(profile?.winnings || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+              <p className="text-[8px] font-black text-green-200 uppercase tracking-widest mb-0.5">Winnings</p>
+              <p className="text-green-400 text-sm font-black">₹{Number(profile?.winnings_balance || profile?.winnings || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
             </div>
           </div>
           

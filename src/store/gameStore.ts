@@ -64,6 +64,9 @@ export interface User {
   id: string;
   username: string;
   balance: number;
+  deposit_balance: number;
+  winnings_balance: number;
+  bonus_balance: number;
   deposited: number;
   winnings: number;
   is_admin?: boolean;
@@ -489,6 +492,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
           resultBigSmall = forced.big_small;
           supabase.from('forced_results').delete().eq('id', forced.id).then();
         } else {
+          // Fetch settings to check Low Traffic Protection
+          const { data: settings } = await supabase.from('app_settings').select('low_traffic_mode, low_traffic_threshold').eq('id', 1).single();
+          const lowTrafficMode = settings?.low_traffic_mode ?? true;
+          const lowTrafficThreshold = settings?.low_traffic_threshold ?? 1500;
+
           const { data: allBets } = await supabase
             .from('bets')
             .select('type, value, amount')
@@ -497,16 +505,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
             .is('won', null);
 
           let totals: any = { green: 0, violet: 0, red: 0, big: 0, small: 0, '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0 };
+          let totalBetAmountInRound = 0;
+
           if (allBets) {
             allBets.forEach(bet => {
               const val = String(bet.value).toLowerCase();
               if (totals[val] !== undefined) totals[val] += Number(bet.amount);
+              totalBetAmountInRound += Number(bet.amount);
             });
           }
 
           let lowestPayout = Infinity;
           let bestNumbers: number[] = [];
 
+          // CORE HOUSE LOGIC (100% UNCHANGED)
           for (let num = 0; num <= 9; num++) {
             let currentPayout = 0;
             const numColor = getColorForNumber(num);
@@ -522,7 +534,51 @@ export const useGameStore = create<GameStore>((set, get) => ({
             else if (currentPayout === lowestPayout) { bestNumbers.push(num); }
           }
 
-          resultNumber = bestNumbers[Math.floor(Math.random() * bestNumbers.length)];
+          // LOW TRAFFIC PROTECTION: only applies when total bets < threshold
+          let finalBestNumbers = bestNumbers;
+          
+          if (lowTrafficMode && totalBetAmountInRound > 0 && totalBetAmountInRound < lowTrafficThreshold) {
+             // NEVER choose a completely zero-bet outcome.
+             // Find all numbers that have at least one bet on them.
+             const numbersWithBets: number[] = [];
+             for (let num = 0; num <= 9; num++) {
+               const numColor = getColorForNumber(num);
+               const numSize = getSizeForNumber(num);
+               const hasBet = (totals[String(num)] > 0) || 
+                              (totals[numSize.toLowerCase()] > 0) || 
+                              (totals[numColor.replace('-violet', '')] > 0) || 
+                              (totals['violet'] > 0 && numColor.includes('violet'));
+               if (hasBet) numbersWithBets.push(num);
+             }
+
+             if (numbersWithBets.length > 0) {
+               // Among numbers with bets, find the one with the lowest payout to minimize house loss
+               let lowestPayoutWithBet = Infinity;
+               let bestNumbersWithBet: number[] = [];
+
+               for (const num of numbersWithBets) {
+                 let currentPayout = 0;
+                 const numColor = getColorForNumber(num);
+                 const numSize = getSizeForNumber(num);
+                 currentPayout += (totals[String(num)] || 0) * 9;
+                 if (numSize === 'Big') currentPayout += (totals['big'] || 0) * 2;
+                 else currentPayout += (totals['small'] || 0) * 2;
+                 if (numColor === 'green' || numColor === 'green-violet') currentPayout += (totals['green'] || 0) * 2;
+                 if (numColor === 'red' || numColor === 'red-violet') currentPayout += (totals['red'] || 0) * 2;
+                 if (numColor === 'red-violet' || numColor === 'green-violet') currentPayout += (totals['violet'] || 0) * 4.5;
+
+                 if (currentPayout < lowestPayoutWithBet) { 
+                   lowestPayoutWithBet = currentPayout; 
+                   bestNumbersWithBet = [num]; 
+                 } else if (currentPayout === lowestPayoutWithBet) { 
+                   bestNumbersWithBet.push(num); 
+                 }
+               }
+               finalBestNumbers = bestNumbersWithBet;
+             }
+          }
+
+          resultNumber = finalBestNumbers[Math.floor(Math.random() * finalBestNumbers.length)];
           resultColor = getColorForNumber(resultNumber);
           resultBigSmall = getSizeForNumber(resultNumber);
         }
@@ -576,6 +632,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (totalLoss > 0 && get().user) {
           supabase.rpc('process_loss_referral_bonus', { p_user_id: get().user!.id, p_loss_amount: totalLoss }).then();
         }
+        
+        let lossBonusEarned = 0;
+        if (netPayout < 0 && get().user) {
+          const { data: bonusData } = await supabase.rpc('process_round_loss_bonus', { p_user_id: get().user!.id, p_net_loss: Math.abs(netPayout), p_period: session.period });
+          if (bonusData) lossBonusEarned = Number(bonusData);
+        }
 
         set(curr => {
           const newMyBets = [...curr.myBets];
@@ -587,9 +649,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
           if (hadBetInSession) {
             const lastToastKey = `${resolveKey}-${finalResultNumber}`;
             if (curr.lastToastKey !== lastToastKey) {
-              if (netPayout > 0) get().addToast('win', `🎉 You won ₹${Math.abs(netPayout).toLocaleString()}! Result: ${finalResultNumber}`);
-              else if (netPayout < 0) get().addToast('loss', `You lost ₹${Math.abs(netPayout).toLocaleString()}. Result: ${finalResultNumber}`);
-              else get().addToast('info', `Push. Result: ${finalResultNumber}`);
+              if (netPayout > 0) {
+                get().addToast('win', `🎉 You won ₹${Math.abs(netPayout).toLocaleString()}! Result: ${finalResultNumber}`);
+              } else if (netPayout < 0) {
+                if (lossBonusEarned > 0) {
+                  get().addToast('loss', `You lost ₹${Math.abs(netPayout).toLocaleString()} → Received ₹${lossBonusEarned} Loss Bonus!`);
+                } else {
+                  get().addToast('loss', `You lost ₹${Math.abs(netPayout).toLocaleString()}. Result: ${finalResultNumber}`);
+                }
+              } else {
+                get().addToast('info', `Push. Result: ${finalResultNumber}`);
+              }
             }
           }
 

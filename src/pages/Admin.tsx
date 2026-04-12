@@ -13,7 +13,16 @@ export default function AdminPanel() {
   const { profile, signOut } = useAuthStore();
   const { addToast } = useGameStore();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [appSettings, setAppSettings] = useState({ upi_id: '', referral_deposit_bonus_percent: 10, referral_bet_loss_bonus_percent: 5, telegram_support_link: '', joining_bonus_amount: 80 });
+  const [appSettings, setAppSettings] = useState({ 
+    upi_id: '', 
+    referral_deposit_bonus_percent: 10, 
+    referral_bet_loss_bonus_percent: 5, 
+    telegram_support_link: '', 
+    joining_bonus_amount: 80,
+    low_traffic_mode: true,
+    low_traffic_threshold: 1500,
+    loss_bonus_percent: 10
+  });
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalBetsToday: 0,
@@ -144,7 +153,10 @@ export default function AdminPanel() {
       referral_deposit_bonus_percent: data.referral_deposit_bonus_percent,
       referral_bet_loss_bonus_percent: data.referral_bet_loss_bonus_percent,
       telegram_support_link: data.telegram_support_link || '',
-      joining_bonus_amount: data.joining_bonus_amount || 80
+      joining_bonus_amount: data.joining_bonus_amount || 80,
+      low_traffic_mode: data.low_traffic_mode ?? true,
+      low_traffic_threshold: data.low_traffic_threshold ?? 1500,
+      loss_bonus_percent: data.loss_bonus_percent ?? 10
     });
   };
 
@@ -381,12 +393,44 @@ export default function AdminPanel() {
             <div className="max-w-xl bg-white p-8 rounded-[2rem] shadow-sm border space-y-6 mx-auto">
               <h3 className="font-black italic uppercase text-lg border-b pb-4">Global Config</h3>
               <div className="space-y-4">
+                
+                {/* Low Traffic Protection Box */}
+                <div className="bg-red-50/50 border border-red-100 p-5 rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-black text-red-900 uppercase italic">Low Traffic Protection</h4>
+                      <p className="text-[10px] text-red-600 font-bold mt-0.5">Let early players win small amounts to build trust.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        checked={appSettings.low_traffic_mode}
+                        onChange={e => setAppSettings({...appSettings, low_traffic_mode: e.target.checked})}
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                    </label>
+                  </div>
+                  {appSettings.low_traffic_mode && (
+                    <div>
+                      <label className="text-[10px] font-black uppercase text-red-800/60 mb-1 block">Traffic Threshold (₹)</label>
+                      <input 
+                        type="number" 
+                        value={appSettings.low_traffic_threshold} 
+                        onChange={e => setAppSettings({...appSettings, low_traffic_threshold: Number(e.target.value)})} 
+                        className="w-full bg-white border border-red-200 p-3 rounded-xl font-black text-red-900 focus:outline-none focus:border-red-500" 
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Deposit UPI ID</label><input type="text" value={appSettings.upi_id} onChange={e => setAppSettings({...appSettings, upi_id: e.target.value})} className="w-full bg-gray-50 border p-4 rounded-2xl font-mono" /></div>
                 <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Support Telegram Channel</label><input type="text" value={appSettings.telegram_support_link} onChange={e => setAppSettings({...appSettings, telegram_support_link: e.target.value})} className="w-full bg-gray-50 border p-4 rounded-2xl font-mono" /></div>
                 <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Joining Bonus (₹)</label><input type="number" value={appSettings.joining_bonus_amount} onChange={e => setAppSettings({...appSettings, joining_bonus_amount: Number(e.target.value)})} className="w-full bg-gray-50 border p-4 rounded-2xl font-black" /></div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Ref Deposit %</label><input type="number" value={appSettings.referral_deposit_bonus_percent} onChange={e => setAppSettings({...appSettings, referral_deposit_bonus_percent: Number(e.target.value)})} className="w-full bg-gray-50 border p-4 rounded-2xl font-black" /></div>
                   <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Ref Loss %</label><input type="number" value={appSettings.referral_bet_loss_bonus_percent} onChange={e => setAppSettings({...appSettings, referral_bet_loss_bonus_percent: Number(e.target.value)})} className="w-full bg-gray-50 border p-4 rounded-2xl font-black" /></div>
+                  <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Loss Bonus %</label><input type="number" value={appSettings.loss_bonus_percent} onChange={e => setAppSettings({...appSettings, loss_bonus_percent: Number(e.target.value)})} className="w-full bg-gray-50 border p-4 rounded-2xl font-black" /></div>
                 </div>
                 <button onClick={handleSaveSettings} className="w-full bg-red-600 text-white font-black py-5 rounded-2xl uppercase tracking-[0.2em] shadow-lg">Save Changes</button>
               </div>
