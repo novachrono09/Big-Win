@@ -39,8 +39,10 @@ export default function AuthPage() {
     try {
       if (mode === 'register') {
         // 1. Get current bonus setting from DB
-        const { data: settings } = await supabase.from('app_settings').select('joining_bonus_amount').single();
-        const bonusAmount = settings?.joining_bonus_amount || 80;
+        const { data: settings } = await supabase.from('app_settings').select('joining_bonus_amount, joining_bonus_percent, joining_bonus_percent_enabled').single();
+        const bonusAmount = settings?.joining_bonus_amount ?? 0;
+        const percentEnabled = settings?.joining_bonus_percent_enabled ?? true;
+        const bonusPercent = settings?.joining_bonus_percent ?? 10;
 
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
@@ -56,7 +58,17 @@ export default function AuthPage() {
 
         if (authError) throw authError;
         if (authData.user) {
-          addToast('success', `Welcome! ₹${bonusAmount} joining bonus has been added to your account (Locked).`);
+          let msg = '';
+          if (bonusAmount > 0 && percentEnabled && bonusPercent > 0) {
+            msg = `Welcome! ₹${bonusAmount} + ${bonusPercent}% bonus on your first deposit awaits you!`;
+          } else if (bonusAmount > 0) {
+            msg = `Welcome! ₹${bonusAmount} joining bonus has been added to your account (Locked).`;
+          } else if (percentEnabled && bonusPercent > 0) {
+            msg = `Welcome! Get a ${bonusPercent}% bonus on your very first deposit!`;
+          } else {
+            msg = 'Registration successful! Welcome to Big Win.';
+          }
+          addToast('success', msg);
         }
       } else {
         const { error: loginError } = await supabase.auth.signInWithPassword({

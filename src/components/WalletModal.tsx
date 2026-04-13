@@ -20,6 +20,7 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
   const [depositStep, setDepositStep] = useState<'amount' | 'pay'>('amount');
   const [utr, setUtr] = useState('');
   const [upiId, setUpiId] = useState('yourupi@oksbi');
+  const [promoSettings, setPromoSettings] = useState({ fixed: 0, percentEnabled: false, percent: 0 });
 
   useEffect(() => {
     if (tab === 'history') fetchHistory();
@@ -55,8 +56,15 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
   };
 
   const fetchSettings = async () => {
-    const { data } = await supabase.from('app_settings').select('upi_id').single();
-    if (data?.upi_id) setUpiId(data.upi_id);
+    const { data } = await supabase.from('app_settings').select('upi_id, joining_bonus_amount, joining_bonus_percent_enabled, joining_bonus_percent').single();
+    if (data) {
+      if (data.upi_id) setUpiId(data.upi_id);
+      setPromoSettings({ 
+        fixed: data.joining_bonus_amount || 0, 
+        percentEnabled: data.joining_bonus_percent_enabled ?? false, 
+        percent: data.joining_bonus_percent || 0 
+      });
+    }
   };
 
   const handleWithdrawal = async () => {
@@ -161,9 +169,9 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
               <span className="text-[10px] font-bold text-red-100 uppercase tracking-widest">Total Usable:</span>
               <span className="text-white font-black text-xs">₹{Number(profile?.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
-            {profile?.joining_bonus > 0 && profile?.bonus_locked && (
+            {profile?.bonus_locked && (promoSettings.fixed > 0 || (promoSettings.percentEnabled && promoSettings.percent > 0)) && (
               <span className="bg-yellow-400 text-yellow-900 text-[8px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5 animate-pulse">
-                <Lock size={8} /> ₹{profile.joining_bonus} LOCKED
+                <Lock size={8} /> PENDING BONUS
               </span>
             )}
           </div>
@@ -186,14 +194,21 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
 
         <div className="px-6 pb-6 flex-1 overflow-y-auto">
           {/* Locked Bonus Info */}
-          {profile?.joining_bonus > 0 && profile?.bonus_locked && (
+          {profile?.bonus_locked && (promoSettings.fixed > 0 || (promoSettings.percentEnabled && promoSettings.percent > 0)) && (
             <div className="mb-6 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20 rounded-2xl p-4 relative overflow-hidden">
               <div className="flex items-start gap-3 relative z-10">
                 <div className="bg-yellow-500 text-white p-2 rounded-xl shadow-lg shadow-yellow-500/20">
                   <Lock size={18} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="text-yellow-600 font-black text-xs uppercase tracking-tight">Joining Bonus: ₹{profile.joining_bonus}</p>
+                  <p className="text-yellow-600 font-black text-xs uppercase tracking-tight">
+                    {promoSettings.fixed > 0 && promoSettings.percentEnabled && promoSettings.percent > 0 
+                      ? `Welcome Bonus: ₹${promoSettings.fixed} + ${promoSettings.percent}%`
+                      : promoSettings.fixed > 0 
+                        ? `Joining Bonus: ₹${promoSettings.fixed}`
+                        : `First Deposit Bonus: ${promoSettings.percent}%`
+                    }
+                  </p>
                   <p className="text-gray-500 text-[10px] font-bold mt-0.5 leading-tight italic">Deposit once to unlock this bonus and add it to your main balance!</p>
                 </div>
               </div>

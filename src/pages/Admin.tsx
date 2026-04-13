@@ -21,7 +21,9 @@ export default function AdminPanel() {
     joining_bonus_amount: 80,
     low_traffic_mode: true,
     low_traffic_threshold: 1500,
-    loss_bonus_percent: 10
+    loss_bonus_percent: 10,
+    joining_bonus_percent: 10,
+    joining_bonus_percent_enabled: true
   });
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -153,10 +155,12 @@ export default function AdminPanel() {
       referral_deposit_bonus_percent: data.referral_deposit_bonus_percent,
       referral_bet_loss_bonus_percent: data.referral_bet_loss_bonus_percent,
       telegram_support_link: data.telegram_support_link || '',
-      joining_bonus_amount: data.joining_bonus_amount || 80,
+      joining_bonus_amount: data.joining_bonus_amount ?? 80,
       low_traffic_mode: data.low_traffic_mode ?? true,
       low_traffic_threshold: data.low_traffic_threshold ?? 1500,
-      loss_bonus_percent: data.loss_bonus_percent ?? 10
+      loss_bonus_percent: data.loss_bonus_percent ?? 10,
+      joining_bonus_percent: data.joining_bonus_percent ?? 10,
+      joining_bonus_percent_enabled: data.joining_bonus_percent_enabled ?? true
     });
   };
 
@@ -205,14 +209,14 @@ export default function AdminPanel() {
     const reason = approve ? '' : prompt('Reason for rejection:');
     if (!approve && reason === null) return;
     try {
-      const { data: tx } = await supabase.from('transactions').select('user_id').eq('id', txId).single();
+      const { data: tx } = await supabase.from('transactions').select('user_id, amount').eq('id', txId).single();
       const { error } = await supabase.rpc('admin_process_deposit', { p_transaction_id: txId, p_approve: approve, p_reason: reason || null });
       if (error) throw error;
 
       if (approve && tx) {
         const { data: userProfile } = await supabase.from('profiles').select('has_deposited').eq('id', tx.user_id).single();
         if (userProfile && !userProfile.has_deposited) {
-          await supabase.rpc('unlock_joining_bonus', { p_user_id: tx.user_id });
+          await supabase.rpc('unlock_joining_bonus', { p_user_id: tx.user_id, p_deposit_amount: tx.amount });
         }
       }
 
@@ -365,8 +369,9 @@ export default function AdminPanel() {
             <PaginatedTable tableName="profiles" pageSize={15} searchFields={['username', 'referral_code']} columns={[
               { key: 'username', label: 'Player', render: (r) => <div className="font-black uppercase italic">{r.username}</div> }, 
               { key: 'balance', label: 'Total', render: (r) => <span className="font-black text-green-600">₹{Number(r.balance).toLocaleString()}</span> }, 
-              { key: 'deposited', label: 'Deposited', render: (r) => <span className="font-bold text-gray-500">₹{Number(r.deposited).toLocaleString()}</span> }, 
-              { key: 'winnings', label: 'Winnings', render: (r) => <span className="font-bold text-blue-500">₹{Number(r.winnings).toLocaleString()}</span> }, 
+              { key: 'deposited', label: 'Deposited', render: (r) => <span className="font-bold text-gray-500">₹{Number(r.deposit_balance || r.deposited || 0).toLocaleString()}</span> }, 
+              { key: 'winnings', label: 'Winnings', render: (r) => <span className="font-bold text-blue-500">₹{Number(r.winnings_balance || r.winnings || 0).toLocaleString()}</span> }, 
+              { key: 'bonus_balance', label: 'Bonus', render: (r) => <span className="font-bold text-yellow-600">₹{Number(r.bonus_balance || 0).toLocaleString()}</span> },
               { key: 'is_admin', label: 'Role', render: (r) => <span className={r.is_admin ? "text-red-600 font-bold" : "text-gray-400"}>{r.is_admin ? "ADMIN" : "PLAYER"}</span> }, 
               { key: 'created_at', label: 'Joined', render: (r) => <span className="text-[10px]">{new Date(r.created_at).toLocaleDateString()}</span> }, 
               { key: 'id', label: 'Action', render: (r) => <button onClick={() => handleEditBalance(r.id, r.balance)} className="text-red-600 font-black text-[10px] uppercase bg-red-50 px-3 py-1 rounded-lg">Edit</button> }
@@ -426,7 +431,37 @@ export default function AdminPanel() {
 
                 <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Deposit UPI ID</label><input type="text" value={appSettings.upi_id} onChange={e => setAppSettings({...appSettings, upi_id: e.target.value})} className="w-full bg-gray-50 border p-4 rounded-2xl font-mono" /></div>
                 <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Support Telegram Channel</label><input type="text" value={appSettings.telegram_support_link} onChange={e => setAppSettings({...appSettings, telegram_support_link: e.target.value})} className="w-full bg-gray-50 border p-4 rounded-2xl font-mono" /></div>
-                <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Joining Bonus (₹)</label><input type="number" value={appSettings.joining_bonus_amount} onChange={e => setAppSettings({...appSettings, joining_bonus_amount: Number(e.target.value)})} className="w-full bg-gray-50 border p-4 rounded-2xl font-black" /></div>
+                
+                <div className="bg-yellow-50/50 border border-yellow-100 p-5 rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-black text-yellow-900 uppercase italic">First Deposit % Bonus</h4>
+                      <p className="text-[10px] text-yellow-600 font-bold mt-0.5">Bonus = Fixed Amount + % of First Deposit</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        checked={appSettings.joining_bonus_percent_enabled}
+                        onChange={e => setAppSettings({...appSettings, joining_bonus_percent_enabled: e.target.checked})}
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-600"></div>
+                    </label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] font-black uppercase text-yellow-800/60 mb-1 block">Fixed Amount (₹)</label>
+                      <input type="number" value={appSettings.joining_bonus_amount} onChange={e => setAppSettings({...appSettings, joining_bonus_amount: Number(e.target.value)})} className="w-full bg-white border border-yellow-200 p-3 rounded-xl font-black text-yellow-900" />
+                    </div>
+                    {appSettings.joining_bonus_percent_enabled && (
+                      <div>
+                        <label className="text-[10px] font-black uppercase text-yellow-800/60 mb-1 block">Bonus %</label>
+                        <input type="number" value={appSettings.joining_bonus_percent} onChange={e => setAppSettings({...appSettings, joining_bonus_percent: Number(e.target.value)})} className="w-full bg-white border border-yellow-200 p-3 rounded-xl font-black text-red-600" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-3 gap-4">
                   <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Ref Deposit %</label><input type="number" value={appSettings.referral_deposit_bonus_percent} onChange={e => setAppSettings({...appSettings, referral_deposit_bonus_percent: Number(e.target.value)})} className="w-full bg-gray-50 border p-4 rounded-2xl font-black" /></div>
                   <div><label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Ref Loss %</label><input type="number" value={appSettings.referral_bet_loss_bonus_percent} onChange={e => setAppSettings({...appSettings, referral_bet_loss_bonus_percent: Number(e.target.value)})} className="w-full bg-gray-50 border p-4 rounded-2xl font-black" /></div>
