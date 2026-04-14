@@ -546,23 +546,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
           if (lowTrafficMode && totalBetAmountInRound > 0 && totalBetAmountInRound < lowTrafficThreshold) {
              // NEVER choose a completely zero-bet outcome.
              // Find all numbers that have at least one bet on them.
-             const numbersWithBets: number[] = [];
+             const numbersWithProbableBets: number[] = [];
              for (let num = 0; num <= 9; num++) {
                const numColor = getColorForNumber(num);
                const numSize = getSizeForNumber(num);
-               const hasBet = (totals[String(num)] > 0) || 
-                              (totals[numSize.toLowerCase()] > 0) || 
-                              (totals[numColor.replace('-violet', '')] > 0) || 
-                              (totals['violet'] > 0 && numColor.includes('violet'));
-               if (hasBet) numbersWithBets.push(num);
+               
+               // Low Traffic Mode only forces wins for high-probability (50/50) bets
+               const hasProbableBet = (totals[numSize.toLowerCase()] > 0) || 
+                                      (totals[numColor.replace('-violet', '')] > 0);
+               
+               if (hasProbableBet) numbersWithProbableBets.push(num);
              }
 
-             if (numbersWithBets.length > 0) {
-               // Among numbers with bets, find the one with the lowest payout to minimize house loss
+             if (numbersWithProbableBets.length > 0) {
+               // Among numbers that satisfy a Red/Green/Big/Small bet, 
+               // find the one with the lowest payout to minimize house loss
                let lowestPayoutWithBet = Infinity;
                let bestNumbersWithBet: number[] = [];
 
-               for (const num of numbersWithBets) {
+               for (const num of numbersWithProbableBets) {
                  let currentPayout = 0;
                  const numColor = getColorForNumber(num);
                  const numSize = getSizeForNumber(num);
