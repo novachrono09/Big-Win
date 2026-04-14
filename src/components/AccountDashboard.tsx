@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 import { 
   Wallet, CreditCard, Gift, HeadphonesIcon, LogOut, Settings, 
-  TrendingUp, TrendingDown, Target, Activity as ActivityIcon, Clock, ChevronLeft, Lock
+  TrendingUp, TrendingDown, Target, Activity as ActivityIcon, Clock, ChevronLeft, Lock, Users
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import PaginatedTable from './PaginatedTable';
@@ -19,6 +20,7 @@ interface AccountDashboardProps {
 }
 
 export default function AccountDashboard({ onOpenWallet, onOpenReferral }: AccountDashboardProps) {
+  const navigate = useNavigate();
   const { profile, signOut, refreshProfile } = useAuthStore();
   const { addToast } = useGameStore();
   const [loading, setLoading] = useState(true);
@@ -249,6 +251,15 @@ export default function AccountDashboard({ onOpenWallet, onOpenReferral }: Accou
         transition={{ delay: 0.3 }}
         className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden mb-6"
       >
+        <button onClick={() => navigate(profile?.is_agent ? '/agent' : '/become-agent')} className="w-full flex items-center justify-between p-5 hover:bg-gray-50 border-b border-gray-50 transition-colors">
+          <div className="flex items-center gap-3 text-red-600 font-bold text-sm">
+            <Users size={20}/>
+            <span className="italic uppercase tracking-widest text-[10px] font-black">
+              {profile?.is_agent ? 'Agent Dashboard' : 'Become an Agent'}
+            </span>
+          </div>
+          <ChevronLeft className="rotate-180 text-gray-300" size={18} />
+        </button>
         <button onClick={() => setShowMethods(true)} className="w-full flex items-center justify-between p-5 hover:bg-gray-50 border-b border-gray-50 transition-colors">
           <div className="flex items-center gap-3 text-gray-700 font-bold text-sm"><Wallet size={20}/><span className="italic">Withdrawal Methods</span></div>
           <ChevronLeft className="rotate-180 text-gray-300" size={18} />

@@ -617,7 +617,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         });
 
         if (resolvedBetsForDb.length > 0) {
+          // 1. Update bet status in DB
           await Promise.all(resolvedBetsForDb.map(rb => supabase.from('bets').update({ won: rb.won, payout: rb.payout, result: rb.result }).eq('id', rb.id)));
+          
+          // 2. Process payouts and commissions via RPC for EACH bet
+          // We do this for ALL bets because commissions are based on bet amount (turnover), not wins.
+          await Promise.all(session.currentBets.map(bet => 
+            supabase.rpc('process_bet_payout', { p_bet_id: bet.id })
+          ));
         }
 
         let totalWin = 0, totalLoss = 0, totalAmountBet = 0;
@@ -631,10 +638,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const netPayout = totalWin - totalAmountBet;
         const hadBetInSession = session.currentBets.length > 0;
 
-        if (totalWin > 0 && get().user) {
-          await supabase.rpc('update_user_balance', { p_user_id: get().user!.id, p_amount: totalWin, p_reason: 'win', p_details: { period: session.period, session: st, official_result: finalResultNumber } });
-        }
-        
         if (totalLoss > 0 && get().user) {
           supabase.rpc('process_loss_referral_bonus', { p_user_id: get().user!.id, p_loss_amount: totalLoss }).then();
         }

@@ -7,9 +7,11 @@ import { cn } from '../utils/cn';
 
 interface PaginatedTableProps {
   tableName: string;
+  select?: string;
   queryModifier?: (query: any) => any;
   columns: { key: string; label: string; render?: (row: any) => React.ReactNode }[];
   pageSize?: number;
+  initialDateFilter?: 'all' | 'today' | '7d' | '30d' | 'custom';
   searchPlaceholder?: string;
   searchFields?: string[];
   dateField?: string;
@@ -20,9 +22,11 @@ interface PaginatedTableProps {
 
 export default function PaginatedTable({
   tableName,
+  select = '*',
   queryModifier,
   columns,
   pageSize = 10,
+  initialDateFilter = '30d',
   searchPlaceholder = "Search...",
   searchFields = [],
   dateField = "created_at",
@@ -39,7 +43,7 @@ export default function PaginatedTable({
   const [pageLoading, setPageLoading] = useState(false); // Page/Filter changes
   
   const [search, setSearch] = useState('');
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | '7d' | '30d' | 'custom'>('30d');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | '7d' | '30d' | 'custom'>(initialDateFilter);
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -51,7 +55,7 @@ export default function PaginatedTable({
     setPageLoading(true);
     
     try {
-      let query = supabase.from(tableName).select('*', { count: 'exact' });
+      let query = supabase.from(tableName).select(select, { count: 'exact' });
 
       if (queryModifierRef.current) query = queryModifierRef.current(query);
 

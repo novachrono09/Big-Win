@@ -242,6 +242,43 @@ export default function AdminPanel() {
     } catch (err: any) { addToast('error', err.message); }
   };
 
+  const handleApproveAgent = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('admin_approve_agent', { p_user_id: userId });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      
+      await supabase.from('user_notifications').insert([{
+        user_id: userId,
+        title: 'Agent Approved!',
+        message: 'Your application to become an agent has been approved. Welcome to the team!',
+        type: 'success'
+      }]);
+      
+      addToast('success', 'Agent approved successfully');
+    } catch (err: any) { addToast('error', err.message); }
+  };
+
+  const handleRejectAgent = async (applicationId: string, userId: string) => {
+    const reason = prompt('Reason for rejection:');
+    if (reason === null) return;
+    try {
+      await supabase.from('agent_applications').update({ 
+        status: 'rejected', 
+        reviewed_at: new Date().toISOString() 
+      }).eq('id', applicationId);
+      
+      await supabase.from('user_notifications').insert([{
+        user_id: userId,
+        title: 'Agent Application',
+        message: `Your agent application was rejected. Reason: ${reason || 'None'}`,
+        type: 'error'
+      }]);
+      
+      addToast('info', 'Agent application rejected');
+    } catch (err: any) { addToast('error', err.message); }
+  };
+
   const handleForceResult = async (sessionType: SessionType) => {
     const num = prompt(`Force result for ${sessionType}\nNumber (0-9):`);
     if (num === null) return;
@@ -283,6 +320,7 @@ export default function AdminPanel() {
             { id: 'users', icon: Users, label: 'User Control' },
             { id: 'deposits', icon: Wallet, label: 'Pending Deposits' },
             { id: 'withdrawals', icon: ClipboardList, label: 'Withdrawals' },
+            { id: 'agents', icon: Share2, label: 'Agents' },
             { id: 'support', icon: MessageSquare, label: 'Support Tickets' },
             { id: 'referrals', icon: Share2, label: 'Referrals' },
             { id: 'transactions', icon: CreditCard, label: 'Financials' },
@@ -383,7 +421,58 @@ export default function AdminPanel() {
           )}
 
           {activeTab === 'withdrawals' && (
-            <PaginatedTable tableName="transactions" queryModifier={(q) => q.eq('type', 'withdrawal')} pageSize={10} searchFields={['status', 'user_id']} columns={[{ key: 'created_at', label: 'Requested', render: (r) => <span>{new Date(r.created_at).toLocaleString()}</span> }, { key: 'user_id', label: 'User ID', render: (r) => <span className="font-mono text-[10px] text-gray-500">{r.user_id.substring(0, 8)}</span> }, { key: 'amount', label: 'Amount', render: (r) => <span className="font-black text-red-600">₹{Math.abs(r.amount)}</span> }, { key: 'withdrawal_details', label: 'Method Details', render: (r) => (<div className="text-[10px] font-bold text-gray-600 bg-gray-50 p-2 rounded w-48 truncate hover:w-auto hover:absolute hover:z-10 hover:shadow-lg">{r.withdrawal_details?.upi_id && <span>UPI: {r.withdrawal_details.upi_id}</span>}{r.withdrawal_details?.account_no && (<div><p>Bank: {r.withdrawal_details.bank_name}</p><p>A/C: {r.withdrawal_details.account_no}</p><p>IFSC: {r.withdrawal_details.ifsc}</p></div>)}{r.withdrawal_details?.qr_url && (<a href={r.withdrawal_details.qr_url} target="_blank" rel="noreferrer" className="text-blue-500 underline">View QR Image</a>)}{!r.withdrawal_details && <span className="text-gray-400 italic">No details (Old transaction)</span>}</div>) }, { key: 'status', label: 'Status', render: (r) => <span className={`uppercase font-black text-[10px] ${r.status === 'completed' ? 'text-green-500' : r.status === 'pending' ? 'text-yellow-500' : 'text-red-500'}`}>{r.status}</span> }, { key: 'id', label: 'Action', render: (r) => r.status === 'pending' ? (<div className="flex gap-2"><button onClick={() => handleProcessWithdrawal(r.id, true)} className="bg-green-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase">Approve</button><button onClick={() => handleProcessWithdrawal(r.id, false)} className="bg-red-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase">Reject</button></div>) : <span className="text-gray-400 text-[10px] uppercase font-bold text-center block">Processed</span> }]} />
+            <PaginatedTable tableName="transactions" queryModifier={(q) => q.eq('type', 'withdrawal')} pageSize={10} searchFields={['status', 'user_id']} columns={[{ key: 'created_at', label: 'Requested', render: (r) => <span>{new Date(r.created_at).toLocaleString()}</span> }, { key: 'user_id', label: 'User ID', render: (r) => <span className="font-mono text-[10px] text-gray-500">{r.user_id.substring(0, 8)}</span> }, { key: 'amount', label: 'Amount', render: (r) => <span className="font-black text-red-600">₹{Math.abs(r.amount)}</span> }, { key: 'withdrawal_details', label: 'Method Details', render: (r) => (<div className="text-[10px] font-bold text-gray-600 bg-gray-50 p-2 rounded w-48 truncate hover:w-auto hover:absolute hover:z-10 hover:shadow-lg">{r.withdrawal_details?.upi_id && <span>UPI: {r.withdrawal_details.upi_id}</span>}{r.withdrawal_details?.account_no && (<div><p>Bank: {r.withdrawal_details.bank_name}</p><p>A/C: {r.withdrawal_details.account_no}</p><p>IFSC: {r.withdrawal_details.ifsc}</p></div>)}{r.withdrawal_details?.qr_url && (<a href={r.withdrawal_details.qr_url} target="_blank" rel="noreferrer" className="text-blue-500 underline">View QR Image</a>)}{!r.withdrawal_details && <span className="text-gray-400 italic">No details (Old transaction)</span>}</div>) }, { key: 'status', label: 'Status', render: (r) => <span className={`uppercase font-black text-[10px] ${r.status === 'completed' ? 'text-green-500' : r.status === 'pending' ? 'text-yellow-500' : 'text-red-500'}`}>{r.status}</span> }, { key: 'id', label: 'Action', render: (r) => r.status === 'pending' ? (<div className="flex gap-2"><button onClick={() => handleProcessWithdrawal(r.id, true)} className="bg-green-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase">Approve</button><button onClick={() => handleProcessWithdrawal(r.id, false)} className="bg-red-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase">Reject</button></div>) : <span className="text-gray-400 text-[10px] italic">Processed</span> }]} />
+          )}
+
+          {activeTab === 'agents' && (
+            <div className="space-y-12">
+              <section>
+                <h3 className="text-lg font-black uppercase italic text-gray-800 mb-6 flex items-center gap-2">
+                  <div className="w-2 h-8 bg-red-600 rounded-full"></div>
+                  Pending Agent Applications
+                </h3>
+                <PaginatedTable 
+                  tableName="agent_applications" 
+                  select="*, profiles(username)"
+                  queryModifier={(q) => q.eq('status', 'pending')} 
+                  initialDateFilter="all"
+                  dateField="applied_at"
+                  pageSize={10} 
+                  columns={[
+                    { key: 'applied_at', label: 'Date', render: (r) => <span className="text-xs">{new Date(r.applied_at).toLocaleString()}</span> },
+                    { key: 'username', label: 'Applicant', render: (r) => <span className="font-black uppercase italic">{r.profiles?.username || 'User'}</span> },
+                    { key: 'user_id', label: 'User ID', render: (r) => <span className="font-mono text-[10px]">{r.user_id.substring(0, 8)}</span> },
+                    { key: 'id', label: 'Actions', render: (r) => (
+                      <div className="flex gap-2">
+                        <button onClick={() => handleApproveAgent(r.user_id)} className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm">Approve</button>
+                        <button onClick={() => handleRejectAgent(r.id, r.user_id)} className="bg-red-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm">Reject</button>
+                      </div>
+                    )}
+                  ]} 
+                />
+              </section>
+
+              <section>
+                <h3 className="text-lg font-black uppercase italic text-gray-800 mb-6 flex items-center gap-2">
+                  <div className="w-2 h-8 bg-gray-900 rounded-full"></div>
+                  Active Agents List
+                </h3>
+                <PaginatedTable 
+                  tableName="profiles" 
+                  queryModifier={(q) => q.eq('is_agent', true)} 
+                  initialDateFilter="all"
+                  dateField="agent_approved_at"
+                  pageSize={10} 
+                  columns={[
+                    { key: 'agent_code', label: 'Code', render: (r) => <span className="font-black text-red-600 tracking-widest">{r.agent_code}</span> },
+                    { key: 'username', label: 'Username', render: (r) => <span className="font-bold uppercase text-gray-900">{r.username}</span> },
+                    { key: 'agent_tier', label: 'Tier', render: (r) => <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-black uppercase">{r.agent_tier === 3 ? 'ELITE' : r.agent_tier === 2 ? 'PRO' : 'STARTER'}</span> },
+                    { key: 'agent_balance', label: 'Wallet', render: (r) => <span className="font-black text-green-600">₹{r.agent_balance?.toLocaleString() || 0}</span> },
+                    { key: 'agent_approved_at', label: 'Since', render: (r) => <span className="text-[10px] text-gray-400">{new Date(r.agent_approved_at).toLocaleDateString()}</span> }
+                  ]} 
+                />
+              </section>
+            </div>
           )}
 
           {activeTab === 'referrals' && (

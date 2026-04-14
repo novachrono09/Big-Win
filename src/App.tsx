@@ -22,6 +22,8 @@ import ReferralTab from './components/ReferralTab';
 import GamesHub from './components/GamesHub';
 import Activity from './components/Activity';
 import AccountDashboard from './components/AccountDashboard';
+import AgentDashboard from './components/AgentDashboard';
+import BecomeAgent from './components/BecomeAgent';
 
 export default function App() {
   const { user, loading, initialized, initialize, profile } = useAuthStore();
@@ -129,6 +131,16 @@ export default function App() {
               <Route path="/promotion" element={
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-full flex-1 p-4 pb-24">
                   <ReferralTab />
+                </motion.div>
+              } />
+              <Route path="/agent" element={
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-full flex-1">
+                  <AgentDashboard />
+                </motion.div>
+              } />
+              <Route path="/become-agent" element={
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-full flex-1">
+                  <BecomeAgent />
                 </motion.div>
               } />
               <Route path="/account" element={
