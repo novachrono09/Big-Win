@@ -349,7 +349,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const newBalance = edgeData.balance;
 
       set(s => ({
-        user: { ...s.user!, balance: newBalance },
+        user: { 
+          ...s.user!, 
+          balance: edgeData.balance,
+          deposit_balance: edgeData.deposit_balance,
+          winnings_balance: edgeData.winnings_balance,
+          bonus_balance: edgeData.bonus_balance
+        },
         sessions: {
           ...s.sessions,
           [activeSession]: {

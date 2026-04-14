@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useGameStore, startGameTick } from './store/gameStore';
 import { useAuthStore } from './store/authStore';
 import AuthPage from './components/AuthPage';
 import Header from './components/Header';
-import SessionTabs from './components/SessionTabs';
-import CountdownPanel from './components/CountdownPanel';
-import BettingPanel from './components/BettingPanel';
-import CurrentBets from './components/CurrentBets';
-import GameHistory from './components/GameHistory';
 import ToastContainer from './components/ToastContainer';
 import ResultAnnouncement from './components/ResultAnnouncement';
 import BottomNav from './components/BottomNav';
@@ -20,22 +16,21 @@ import { supabase } from './lib/supabase';
 import ResetPasswordModal from './components/ResetPasswordModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// New Fully Featured Components
+// Pages
+import WingoGame from './pages/WingoGame';
 import ReferralTab from './components/ReferralTab';
 import GamesHub from './components/GamesHub';
 import Activity from './components/Activity';
 import AccountDashboard from './components/AccountDashboard';
 
-export type TabType = 'wingo' | 'all-games' | 'activity' | 'promotion' | 'account';
-
-// ── Main App Component ──
-
 export default function App() {
-  const { user, loading, initialized, initialize, profile, signOut } = useAuthStore();
+  const { user, loading, initialized, initialize, profile } = useAuthStore();
   const { fetchNotifications, subscribe, unsubscribe } = useNotificationStore();
-  const [activeTab, setActiveTab] = useState<TabType>('wingo');
   const [showWallet, setShowWallet] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+  
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useRealtimeBalance();
   useRealtimeReconnect();
@@ -74,7 +69,7 @@ export default function App() {
   }
 
   // Handle Admin Route
-  const isAdminPath = typeof window !== 'undefined' && window.location.pathname === '/admin';
+  const isAdminPath = location.pathname === '/admin';
 
   if (isAdminPath) {
     if (!profile) {
@@ -94,8 +89,7 @@ export default function App() {
         </>
       );
     } else {
-      // Non-admin trying to access admin
-      window.location.href = '/';
+      navigate('/');
       return null;
     }
   }
@@ -109,61 +103,45 @@ export default function App() {
     );
   }
 
-  const renderContent = () => {
-    return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="w-full flex-1"
-        >
-          {(() => {
-            switch (activeTab) {
-              case 'wingo':
-                return (
-                  <div className="pb-24">
-                    <CountdownPanel />
-                    <BettingPanel />
-                    <CurrentBets />
-                    <GameHistory />
-                  </div>
-                );
-              case 'all-games':
-                return <GamesHub onPlayWingo={() => setActiveTab('wingo')} />;
-              case 'activity':
-                return <Activity />;
-              case 'promotion':
-                return (
-                  <div className="p-4 pb-24">
-                    <ReferralTab />
-                  </div>
-                );
-              case 'account':
-                return <AccountDashboard onOpenWallet={() => setShowWallet(true)} onOpenReferral={() => setActiveTab('promotion')} />;
-              default:
-                return null;
-            }
-          })()}
-        </motion.div>
-      </AnimatePresence>
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-lg min-h-screen bg-gray-100 relative shadow-2xl overflow-x-hidden flex flex-col">
         <Header />
-        
-        {activeTab === 'wingo' && <SessionTabs />}
 
-        <div className="flex-1 flex flex-col">
-          {renderContent()}
+        <div className="flex-1 flex flex-col relative">
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/wingo" element={
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-full flex-1">
+                  <WingoGame />
+                </motion.div>
+              } />
+              <Route path="/all-games" element={
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-full flex-1">
+                  <GamesHub onPlayWingo={() => navigate('/wingo')} />
+                </motion.div>
+              } />
+              <Route path="/activity" element={
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-full flex-1">
+                  <Activity />
+                </motion.div>
+              } />
+              <Route path="/promotion" element={
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-full flex-1 p-4 pb-24">
+                  <ReferralTab />
+                </motion.div>
+              } />
+              <Route path="/account" element={
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-full flex-1">
+                  <AccountDashboard onOpenWallet={() => setShowWallet(true)} onOpenReferral={() => navigate('/promotion')} />
+                </motion.div>
+              } />
+              <Route path="*" element={<Navigate to="/wingo" replace />} />
+            </Routes>
+          </AnimatePresence>
         </div>
 
-        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        <BottomNav />
         
         <ResultAnnouncement />
         <ToastContainer />
