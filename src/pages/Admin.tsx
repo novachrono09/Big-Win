@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { SessionType, useGameStore } from '../store/gameStore';
 import { 
-  LayoutDashboard, Users, Activity, History, CreditCard, Settings, LogOut, CheckCircle, Wallet, Share2, ClipboardList, MessageSquare, ChevronLeft, Send, X
+  LayoutDashboard, Users, Activity, History, CreditCard, Settings, LogOut, CheckCircle, Wallet, Share2, ClipboardList, MessageSquare, ChevronLeft, Send, X, Award
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { cn } from '../utils/cn';
@@ -25,6 +25,7 @@ export default function AdminPanel() {
     joining_bonus_percent: 10,
     joining_bonus_percent_enabled: true
   });
+  const [agentBonusConfig, setAgentBonusConfig] = useState<{ [key: string]: number }>({});
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalBetsToday: 0,
@@ -82,7 +83,32 @@ export default function AdminPanel() {
     if (profile?.is_admin && activeTab === 'settings') {
       fetchSettings();
     }
+    if (profile?.is_admin && activeTab === 'milestones') {
+      fetchAgentBonusConfig();
+    }
   }, [profile, activeTab]);
+
+  const fetchAgentBonusConfig = async () => {
+    const { data } = await supabase.from('agent_bonus_config').select('*');
+    if (data) {
+      const config: { [key: string]: number } = {};
+      data.forEach(row => {
+        config[row.key] = Number(row.value);
+      });
+      setAgentBonusConfig(config);
+    }
+  };
+
+  const handleUpdateBonusConfig = async (key: string, currentValue: number) => {
+    const newValue = prompt(`Enter new value for ${key}:`, currentValue.toString());
+    if (newValue === null) return;
+    try {
+      const { error } = await supabase.from('agent_bonus_config').update({ value: Number(newValue) }).eq('key', key);
+      if (error) throw error;
+      addToast('success', 'Config updated');
+      fetchAgentBonusConfig();
+    } catch (err: any) { addToast('error', err.message); }
+  };
 
   const fetchDashboardStats = async () => {
     setLoading(true);
@@ -279,6 +305,16 @@ export default function AdminPanel() {
     } catch (err: any) { addToast('error', err.message); }
   };
 
+  const handleEditMilestone = async (activePlayers: number, currentBonus: number) => {
+    const newBonus = prompt(`Enter new bonus for ${activePlayers} Active Players:`, currentBonus.toString());
+    if (!newBonus) return;
+    try {
+      const { error } = await supabase.from('agent_milestones').update({ bonus_amount: Number(newBonus) }).eq('active_players', activePlayers);
+      if (error) throw error;
+      addToast('success', 'Milestone updated');
+    } catch (err: any) { addToast('error', err.message); }
+  };
+
   const handleForceResult = async (sessionType: SessionType) => {
     const num = prompt(`Force result for ${sessionType}\nNumber (0-9):`);
     if (num === null) return;
@@ -321,6 +357,7 @@ export default function AdminPanel() {
             { id: 'deposits', icon: Wallet, label: 'Pending Deposits' },
             { id: 'withdrawals', icon: ClipboardList, label: 'Withdrawals' },
             { id: 'agents', icon: Share2, label: 'Agents' },
+            { id: 'milestones', icon: Award, label: 'Milestones' },
             { id: 'support', icon: MessageSquare, label: 'Support Tickets' },
             { id: 'referrals', icon: Share2, label: 'Referrals' },
             { id: 'transactions', icon: CreditCard, label: 'Financials' },
@@ -472,6 +509,62 @@ export default function AdminPanel() {
                   ]} 
                 />
               </section>
+            </div>
+          )}
+
+          {activeTab === 'milestones' && (
+            <div className="max-w-2xl">
+              <h3 className="text-lg font-black uppercase italic text-gray-800 mb-6 flex items-center gap-2">
+                <div className="w-2 h-8 bg-yellow-500 rounded-full"></div>
+                Agent Milestone Config
+              </h3>
+              <PaginatedTable 
+                tableName="agent_milestones"
+                pageSize={10}
+                initialDateFilter="all"
+                dateField="active_players"
+                columns={[
+                  { key: 'active_players', label: 'Active Players Goal', render: (r) => <span className="font-black text-gray-900">{r.active_players} Players</span> },
+                  { key: 'bonus_amount', label: 'Bonus Amount', render: (r) => <span className="font-black text-green-600">₹{r.bonus_amount.toLocaleString()}</span> },
+                  { key: 'active_players', label: 'Action', render: (r) => (
+                    <button 
+                      onClick={() => handleEditMilestone(r.active_players, r.bonus_amount)} 
+                      className="bg-gray-900 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm"
+                    >
+                      Edit Bonus
+                    </button>
+                  )}
+                ]}
+              />
+              
+              <div className="mt-12 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-red-50 p-2 rounded-xl text-red-600">
+                    <Users size={20} />
+                  </div>
+                  <h3 className="text-lg font-black uppercase italic text-gray-800">Extra Bonuses</h3>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                  <div>
+                    <p className="text-xs font-black text-gray-900 uppercase">Per Player Bonus (After 100)</p>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase mt-0.5">Bonus paid for every new active player beyond 100</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="font-black text-red-600">₹{agentBonusConfig['per_player_after_100']?.toLocaleString() || '0'}</span>
+                    <button 
+                      onClick={() => handleUpdateBonusConfig('per_player_after_100', agentBonusConfig['per_player_after_100'] || 0)}
+                      className="bg-gray-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <p className="mt-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-100 p-4 rounded-xl border border-dashed border-gray-300">
+                Tip: These bonuses are paid instantly only ONCE per agent when they reach the specific player count.
+              </p>
             </div>
           )}
 

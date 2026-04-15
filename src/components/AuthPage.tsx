@@ -7,8 +7,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [referralCode, setReferralCode] = useState('');
-  const [agentCode, setAgentCode] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
@@ -19,8 +18,7 @@ export default function AuthPage() {
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
     const agent = params.get('agent');
-    if (ref) setReferralCode(ref.toUpperCase());
-    if (agent) setAgentCode(agent.toUpperCase());
+    if (ref || agent) setInviteCode((ref || agent || '').toUpperCase());
   }, []);
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -59,8 +57,8 @@ export default function AuthPage() {
           options: { 
             data: { 
               username: username,
-              referral_code: referralCode || null,
-              agent_code: agentCode || referralCode || null, // Try referralCode as agent_code too for simplicity
+              referral_code: inviteCode || null,
+              agent_code: inviteCode || null,
               joining_bonus: bonusAmount
             } 
           }
@@ -178,28 +176,15 @@ export default function AuthPage() {
           )}
 
           {mode === 'register' && (
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="block text-[10px] font-black text-red-500 uppercase tracking-widest ml-1">Agent Code (Optional)</label>
-                <input
-                  type="text"
-                  value={agentCode}
-                  onChange={e => setAgentCode(e.target.value.toUpperCase())}
-                  placeholder="Enter AGXXXXX code"
-                  className="w-full bg-red-600/5 border-2 border-red-900/20 rounded-2xl px-5 py-3.5 text-red-500 text-sm focus:outline-none focus:border-red-600 transition-all placeholder:text-red-900/30 font-black tracking-widest"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Referral Code (Optional)</label>
-                <input
-                  type="text"
-                  value={referralCode}
-                  onChange={e => setReferralCode(e.target.value.toUpperCase())}
-                  placeholder="Enter invite code"
-                  className="w-full bg-gray-800 border-2 border-gray-700 rounded-2xl px-5 py-3.5 text-white text-sm focus:outline-none focus:border-red-600 transition-all placeholder:text-gray-600 font-bold"
-                />
-              </div>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-black text-red-500 uppercase tracking-widest ml-1">Invite Code (Optional)</label>
+              <input
+                type="text"
+                value={inviteCode}
+                onChange={e => setInviteCode(e.target.value.toUpperCase())}
+                placeholder="Enter invite or agent code"
+                className="w-full bg-red-600/5 border-2 border-red-900/20 rounded-2xl px-5 py-3.5 text-red-500 text-sm focus:outline-none focus:border-red-600 transition-all placeholder:text-red-900/30 font-black tracking-widest"
+              />
             </div>
           )}
 
