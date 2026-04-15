@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { useGameStore } from '../store/gameStore';
 import { motion } from 'framer-motion';
-import { ChevronRight, Award, TrendingUp, Users, ShieldCheck, Loader2 } from 'lucide-react';
+import { ChevronRight, Award, TrendingUp, Users, ShieldCheck, Loader2, Clock } from 'lucide-react';
 
 export default function BecomeAgent() {
   const { profile, refreshProfile } = useAuthStore();
