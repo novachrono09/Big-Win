@@ -291,6 +291,7 @@ export default function AdminPanel() {
     try {
       await supabase.from('agent_applications').update({ 
         status: 'rejected', 
+        notes: reason || 'None',
         reviewed_at: new Date().toISOString() 
       }).eq('id', applicationId);
       
@@ -470,19 +471,43 @@ export default function AdminPanel() {
                 </h3>
                 <PaginatedTable 
                   tableName="agent_applications" 
-                  select="*, profiles(username)"
+                  select="*, profiles(username, deposited)"
                   queryModifier={(q) => q.eq('status', 'pending')} 
                   initialDateFilter="all"
                   dateField="applied_at"
                   pageSize={10} 
                   columns={[
-                    { key: 'applied_at', label: 'Date', render: (r) => <span className="text-xs">{new Date(r.applied_at).toLocaleString()}</span> },
-                    { key: 'username', label: 'Applicant', render: (r) => <span className="font-black uppercase italic">{r.profiles?.username || 'User'}</span> },
-                    { key: 'user_id', label: 'User ID', render: (r) => <span className="font-mono text-[10px]">{r.user_id.substring(0, 8)}</span> },
+                    { key: 'applied_at', label: 'Date', render: (r) => <span className="text-[10px] text-gray-400">{new Date(r.applied_at).toLocaleDateString()}</span> },
+                    { key: 'username', label: 'Applicant', render: (r) => (
+                      <div>
+                        <div className="font-black uppercase italic text-gray-900">{r.profiles?.username || 'User'}</div>
+                        <div className="text-[8px] font-bold text-gray-400 uppercase">Dep: ₹{Number(r.profiles?.deposited || 0).toLocaleString()}</div>
+                      </div>
+                    )},
+                    { key: 'whatsapp', label: 'Contact', render: (r) => (
+                      <div className="space-y-0.5">
+                        <div className="text-[10px] font-black text-green-600">WA: {r.whatsapp}</div>
+                        <div className="text-[10px] font-black text-blue-500">TG: {r.telegram}</div>
+                      </div>
+                    )},
+                    { key: 'city', label: 'Info', render: (r) => (
+                      <div className="space-y-0.5">
+                        <div className="text-[10px] font-black text-gray-700 uppercase">{r.city}</div>
+                        <div className="text-[9px] font-bold text-red-600 uppercase">Exp: {r.expected_players}</div>
+                      </div>
+                    )},
                     { key: 'id', label: 'Actions', render: (r) => (
-                      <div className="flex gap-2">
-                        <button onClick={() => handleApproveAgent(r.user_id)} className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm">Approve</button>
-                        <button onClick={() => handleRejectAgent(r.id, r.user_id)} className="bg-red-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm">Reject</button>
+                      <div className="flex flex-wrap gap-2">
+                        <button onClick={() => handleApproveAgent(r.user_id)} className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm">Approve</button>
+                        <button onClick={() => handleRejectAgent(r.id, r.user_id)} className="bg-red-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm">Reject</button>
+                        <a 
+                          href={`https://t.me/${r.telegram?.replace('@', '')}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="bg-blue-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm flex items-center gap-1"
+                        >
+                          <Send size={10} /> Msg
+                        </a>
                       </div>
                     )}
                   ]} 
